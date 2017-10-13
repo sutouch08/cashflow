@@ -1,0 +1,4 @@
+RewriteEngine On
+RewriteBase /cashflow/
+RewriteCond $1 !^(index\.php|asset|images|script)
+RewriteRule ^(.*)$ index.php
