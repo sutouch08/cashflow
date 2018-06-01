@@ -4,7 +4,7 @@ class Flow_model extends CI_Model
 
 public function __construct()
 {
-	parent:: __construct();	
+	parent:: __construct();
 }
 
 public function count_row($id)
@@ -22,9 +22,9 @@ public function get_data($id = "",$id_bank_ac, $perpage= 20, $limit = 1)
 {
 	if($id != "")
 	{
-		$rs = $this->db->where("id_cash_flow", $id)->get("tbl_cash_flow");	
+		$rs = $this->db->where("id_cash_flow", $id)->get("tbl_cash_flow");
 	}else{
-		$rs = $this->db->where("id_bank_ac", $id_bank_ac)->order_by("due_date", "ASC")->order_by("position", "ASC")->limit($perpage, $limit)->get("tbl_cash_flow");
+		$rs = $this->db->where("id_bank_ac", $id_bank_ac)->order_by("due_date", "DESC")->order_by("position", "DESC")->limit($perpage, $limit)->get("tbl_cash_flow");
 	}
 	if($rs->num_rows() > 0)
 	{
@@ -46,7 +46,7 @@ public function get_search($id_bank_ac, $detail, $reference, $from_date, $to_dat
 		return $rs->result();
 	}else{
 		return false;
-	}	
+	}
 }
 
 public function count_search_row($id_bank_ac, $detail, $reference, $from_date, $to_date)
@@ -56,13 +56,13 @@ public function count_search_row($id_bank_ac, $detail, $reference, $from_date, $
 	if( $reference != '' && $detail != '' ){ $this->db->or_like('reference', $reference); }else if( $reference != '' ){ $this->db->like('reference', $reference); }
 	if( $from_date != '' && $to_date != '' ){ $this->db->where("due_date BETWEEN '$from_date' AND '$to_date'", NULL, false); }
 	$rs = $this->db->where("id_bank_ac", $id_bank_ac)->get("tbl_cash_flow");
-	return $rs->num_rows();	
+	return $rs->num_rows();
 }
-	
+
 public function add_row($data)
 {
 	$rs = $this->db->insert("tbl_cash_flow", $data);
-	return $rs;	
+	return $rs;
 }
 
 public function update_row($id, $data)
@@ -75,7 +75,7 @@ public function update_row($id, $data)
 public function delete_row($id)
 {
 	$rs = $this->db->where("id_cash_flow", $id)->delete("tbl_cash_flow");
-	return $rs;	
+	return $rs;
 }
 
 private function check_date($id_bank_ac, $date)
@@ -115,9 +115,9 @@ public function get_rank($id_bank_ac, $date, $is_in)  //// ส่งข้อม
 {
 	if($is_in == 0 )
 	{
-		$rs = $this->db->where("id_bank_ac", $id_bank_ac)->where("due_date", $date)->where("is_in", 0)->order_by("detail", "ASC")->get("tbl_cash_flow");
+		$rs = $this->db->where("id_bank_ac", $id_bank_ac)->where("due_date", $date)->where("is_in", 0)->order_by("date_add", "ASC")->get("tbl_cash_flow");
 	}else{
-		$rs = $this->db->where("id_bank_ac", $id_bank_ac)->where("due_date", $date)->where("is_in", 1)->order_by("cash_in", "ASC")->get("tbl_cash_flow");
+		$rs = $this->db->where("id_bank_ac", $id_bank_ac)->where("due_date", $date)->where("is_in", 1)->order_by("date_add", "ASC")->get("tbl_cash_flow");
 	}
 	if($rs->num_rows() > 0 )
 	{
@@ -128,13 +128,13 @@ public function get_rank($id_bank_ac, $date, $is_in)  //// ส่งข้อม
 }
 
 public function get_last_balance($id_bank_ac, $date)
-{	
+{
 	$cs = $this->check_date($id_bank_ac, $date); /// ตรวจสอบว่ามีวันที่นี้อยู่แล้วหรือยัง
-	if($cs) 													/// ถ้ามีแล้ว	
+	if($cs) 													/// ถ้ามีแล้ว
 	{
 		$pos = $this->max_position($id_bank_ac, $date);			/// ดึงตำแหน่งสูงสุด
 		$rs = $this->db->select("balance")->where("id_bank_ac", $id_bank_ac)->where("due_date", $date)->where("position", $pos)->get("tbl_cash_flow");
-	}else{	
+	}else{
 		$last_date = $this->last_date($id_bank_ac, $date);
 		if($last_date)
 		{
@@ -142,7 +142,7 @@ public function get_last_balance($id_bank_ac, $date)
 			$rs = $this->db->select("balance")->where("id_bank_ac", $id_bank_ac)->where("due_date", $last_date)->where("position", $pos)->get("tbl_cash_flow");
 		}else{  ///ถ้าไม่มีวันที่ล่าสุด แสดงว่าวันที่เพิ่มหรือแก้ไขมานั้นเป็นวันที่ตั้งต้น
 			$rs = "first_date";
-		}			
+		}
 	}
 	if($rs != "first_date" )
 	{
@@ -334,9 +334,9 @@ public function od_budget($id_bank_ac)
 	$rs = $this->db->select("od_budget")->where("id_bank_ac", $id_bank_ac)->get("tbl_bank_ac");
 	if($rs->num_rows() > 0)
 	{
-		return $rs->row()->od_budget; 
+		return $rs->row()->od_budget;
 	}else{
-		return 0; 
+		return 0;
 	}
 }
 
@@ -384,7 +384,7 @@ public function change_color($id, $data)
 	$rs = $this->db->where("id_cash_flow", $id)->update("tbl_cash_flow", $data);
 	return $rs;
 }
-	
+
 }/// end class
 
 ?>
