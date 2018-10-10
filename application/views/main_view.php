@@ -1,7 +1,7 @@
 
 <?php /***********************************   ระบบตรวจสอบสิทธิ์  ******************************************/ ?>
-<?php 
-	$p = valid_access($id_menu);  	
+<?php
+	$p = valid_access($id_menu);
 ?>
 <?php if($p['view'] != 1) : ?>
 <?php access_deny();  ?>
@@ -14,15 +14,20 @@
 <hr style='border-color:#CCC; margin-top: 0px; margin-bottom:20px;' />
 <div class="row">
 <?php if( isset($data) && $data != false) : ?>
+<?php 	$total_balance = 0; ?>
 <table class="table table-striped table-hover">
 <thead>
 	<th style="width:20%;">การกระทำ</th>
     <th style="width:40%">บัญชี</th>
-    <th style="width:15%;">บริษัท</th>
+		<th style="width:10%; text-align:right;">คงเหลือ[ปัจจุบัน]</th>
+    <th style="width:15%; text-align:center;">บริษัท</th>
     <th></th>
 </thead>
 <?php 	foreach($data as $rs) : ?>
-<?php 		$a = valid_ac($rs->id_bank_ac); ?>
+<?php
+				$a = valid_ac($rs->id_bank_ac);
+				$balance = $this->account_model->get_balance($rs->id_bank_ac);
+	?>
 <tr>
 	<td>
 <?php if( can_do($a['view']) ) : ?>
@@ -32,23 +37,39 @@
 <?php else : ?>
         <button class="btn btn-warning btn-xs" style="visibility:hidden;"><i class="fa fa-search"></i>&nbsp; ดูรายการ</button>
 <?php endif; ?>
-<?php if( can_do($a['add']) || can_do($a['edit']) ) : ?>        
+<?php if( can_do($a['add']) || can_do($a['edit']) ) : ?>
         <a href="<?php echo base_url()."flow/add/".$rs->id_bank_ac; ?>" style="text-decoration:none;">
-        <button class="btn btn-info btn-xs"><i class="fa fa-pencil"></i>&nbsp; เพิ่ม/แก้ไข รายการ</button>       
+        <button class="btn btn-info btn-xs"><i class="fa fa-pencil"></i>&nbsp; เพิ่ม/แก้ไข รายการ</button>
         </a>
-<?php else : ?> 
-		<button class="btn btn-info btn-xs" style="visibility:hidden"><i class="fa fa-pencil"></i>&nbsp; เพิ่ม/แก้ไข รายการ</button>         
-<?php endif; ?>  
+<?php else : ?>
+		<button class="btn btn-info btn-xs" style="visibility:hidden"><i class="fa fa-pencil"></i>&nbsp; เพิ่ม/แก้ไข รายการ</button>
+<?php endif; ?>
 	</td>
     <td>
-		<?php echo $rs->ac_code; ?>&nbsp; : &nbsp;<?php echo bank_name($rs->id_bank); ?>&nbsp; : &nbsp; <?php echo $rs->ac_number; ?>&nbsp; : &nbsp;<?php echo $rs->ac_name; ?>
+		<?php echo $rs->ac_code; ?>
+		&nbsp; : &nbsp;
+		<?php echo bank_name($rs->id_bank); ?>
+		&nbsp; : &nbsp;
+		<?php echo $rs->ac_number; ?>
+		&nbsp; : &nbsp;
+		<?php echo $rs->ac_name; ?>
     </td>
-    <td>
+		<td align="right">
+			<?php echo number_format($balance, 2); ?>
+		</td>
+    <td align="center">
     	<?php echo company_name($rs->id_company); ?>
     </td>
     <td></td>
-    </tr>    
+    </tr>
+		<?php $total_balance += $balance; ?>
 <?php 	endforeach; ?>
+	<tr>
+		<td colspan="2" align="right">คงเหลือรวม(ปัจจุบัน)</td>
+		<td align="right"><?php echo number_format($total_balance, 2); ?></td>
+		<td></td>
+		<td></td>
+	</tr>
 </table>
 <?php else : ?>
 <div class="alert alert-info">

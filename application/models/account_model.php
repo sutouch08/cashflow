@@ -161,7 +161,22 @@ public function get_id_bank($id_bank_ac)
 		return 0;
 	}
 }
-	
+
+
+public function get_balance($id_bank_ac, $date = '')
+{
+	$date = $date == '' ? date('Y-m-d') : $date;
+	$qr = "SELECT balance FROM tbl_cash_flow WHERE id_bank_ac = ".$id_bank_ac." AND due_date <= '".$date."' ORDER BY due_date DESC, position DESC LIMIT 1";
+	$rs = $this->db->query($qr);
+	//$rs = $this->db->select("balance")->where("id_bank_ac", $id_bank_ac)->where("due_date", $date)->order_by("position", "DESC")->limit(1)->get("tbl_cash_flow");
+	if($rs->num_rows() == 1)
+	{
+		return $rs->row()->balance;
+	}
+
+	return 0;
+}
+
 }// end class
 
 ?>
