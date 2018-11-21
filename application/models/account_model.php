@@ -168,10 +168,70 @@ public function get_balance($id_bank_ac, $date = '')
 	$date = $date == '' ? date('Y-m-d') : $date;
 	$qr = "SELECT balance FROM tbl_cash_flow WHERE id_bank_ac = ".$id_bank_ac." AND due_date <= '".$date."' ORDER BY due_date DESC, position DESC LIMIT 1";
 	$rs = $this->db->query($qr);
-	//$rs = $this->db->select("balance")->where("id_bank_ac", $id_bank_ac)->where("due_date", $date)->order_by("position", "DESC")->limit(1)->get("tbl_cash_flow");
+
 	if($rs->num_rows() == 1)
 	{
 		return $rs->row()->balance;
+	}
+
+	return 0;
+}
+
+
+public function get_last_month_balance($id_bank_ac, $date = '')
+{
+	$date = $date == '' ? date('Y-m-d') : $date;
+	$to = date('Y-m-t 23:59:59', strtotime("$date -1 month"));
+	$qr = "SELECT balance FROM tbl_cash_flow ";
+	$qr .= "WHERE id_bank_ac = ".$id_bank_ac." ";
+	$qr .= "AND due_date <= '".$to."' ";
+	$qr .= "ORDER BY due_date DESC, position DESC LIMIT 1";
+	$rs = $this->db->query($qr);
+
+	if($rs->num_rows() == 1)
+	{
+		return $rs->row()->balance;
+	}
+
+	return 0;
+}
+
+public function get_total_move_in($id_bank_ac, $date = '')
+{
+	$date = $date == '' ? date('Y-m-d') : $date;
+	$from = date('Y-m-01 00:00:00', strtotime($date));
+	$to = date('Y-m-t 23:59:59', strtotime($date));
+	$qr = "SELECT SUM(cash_in) AS cash_in FROM tbl_cash_flow ";
+	$qr .= "WHERE id_bank_ac = ".$id_bank_ac." ";
+	$qr .= "AND due_date >= '".$from."' ";
+	$qr .= "AND due_date <= '".$to."' ";
+
+	$rs = $this->db->query($qr);
+
+	if($rs->num_rows() == 1)
+	{
+		return $rs->row()->cash_in;
+	}
+
+	return 0;
+}
+
+
+public function get_total_move_out($id_bank_ac, $date = '')
+{
+	$date = $date == '' ? date('Y-m-d') : $date;
+	$from = date('Y-m-01 00:00:00', strtotime($date));
+	$to = date('Y-m-t 23:59:59', strtotime($date));
+	$qr = "SELECT SUM(cash_out) AS cash_out FROM tbl_cash_flow ";
+	$qr .= "WHERE id_bank_ac = ".$id_bank_ac." ";
+	$qr .= "AND due_date >= '".$from."' ";
+	$qr .= "AND due_date <= '".$to."' ";
+
+	$rs = $this->db->query($qr);
+
+	if($rs->num_rows() == 1)
+	{
+		return $rs->row()->cash_out;
 	}
 
 	return 0;

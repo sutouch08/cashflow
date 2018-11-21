@@ -14,11 +14,19 @@
 <hr style='border-color:#CCC; margin-top: 0px; margin-bottom:20px;' />
 <div class="row">
 <?php if( isset($data) && $data != false) : ?>
-<?php 	$total_balance = 0; ?>
+<?php
+			$total_balance = 0;
+			$total_last_month = 0;
+			$total_move_in = 0;
+			$total_move_out = 0;
+?>
 <table class="table table-striped table-hover">
 <thead>
 	<th style="width:20%;">การกระทำ</th>
-    <th style="width:40%">บัญชี</th>
+    <th style="">บัญชี</th>
+		<th style="width:10%; text-align:right;">ยอดยกมา</th>
+		<th style="width:10%; text-align:right;">เงินเข้า</th>
+		<th style="width:10%; text-align:right;">เงินออก</th>
 		<th style="width:10%; text-align:right;">คงเหลือ[ปัจจุบัน]</th>
     <th style="width:15%; text-align:center;">บริษัท</th>
     <th></th>
@@ -26,7 +34,11 @@
 <?php 	foreach($data as $rs) : ?>
 <?php
 				$a = valid_ac($rs->id_bank_ac);
+				$last_month_balance = $this->account_model->get_last_month_balance($rs->id_bank_ac);
+				$total_move_in_amount = $this->account_model->get_total_move_in($rs->id_bank_ac);
+				$total_move_out_amount = $this->account_model->get_total_move_out($rs->id_bank_ac);
 				$balance = $this->account_model->get_balance($rs->id_bank_ac);
+
 	?>
 <tr>
 	<td>
@@ -55,6 +67,15 @@
 		<?php echo $rs->ac_name; ?>
     </td>
 		<td align="right">
+			<?php echo number_format($last_month_balance, 2); ?>
+		</td>
+		<td align="right">
+			<?php echo number_format($total_move_in_amount, 2); ?>
+		</td>
+		<td align="right">
+			<?php echo number_format($total_move_out_amount, 2); ?>
+		</td>
+		<td align="right">
 			<?php echo number_format($balance, 2); ?>
 		</td>
     <td align="center">
@@ -62,10 +83,18 @@
     </td>
     <td></td>
     </tr>
-		<?php $total_balance += $balance; ?>
+		<?php
+			$total_balance += $balance;
+			$total_last_month += $last_month_balance;
+			$total_move_in += $total_move_in_amount;
+			$total_move_out += $total_move_out_amount;
+		?>
 <?php 	endforeach; ?>
 	<tr>
-		<td colspan="2" align="right">คงเหลือรวม(ปัจจุบัน)</td>
+		<td colspan="2" align="right">คงเหลือรวม(<?php echo thaiDate(); ?>)</td>
+		<td align="right"><?php echo number_format($total_last_month, 2); ?></td>
+		<td align="right"><?php echo number_format($total_move_in, 2); ?></td>
+		<td align="right"><?php echo number_format($total_move_out, 2); ?></td>
 		<td align="right"><?php echo number_format($total_balance, 2); ?></td>
 		<td></td>
 		<td></td>

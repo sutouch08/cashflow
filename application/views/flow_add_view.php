@@ -44,7 +44,7 @@
 
 <div class="col-lg-2 col-md-4 col-sm-6">
 	<label for="detail">รายการ</label>
-	<input type="text" id="detail" name="detail" placeholder="ระบุรายละเอียดของการเคลื่อนไหว" class="form-control" />
+	<input type="text" id="detail" name="detail" placeholder="ระบุรายละเอียดของการเคลื่อนไหว" class="form-control" value="รายได้จากการขาย" />
 </div>
 
 <div class="col-lg-2 col-md-4 col-sm-6">
@@ -584,7 +584,7 @@ function date_error(title, text, el)
 function clear_field()
 {
 	$("#due_date").val("");
-	$("#detail").val("");
+	$("#detail").val("รายได้จากการขาย");
 	$("#reference").val("");
 	$("#customer").val("");
 	$("#supplier").val("");
