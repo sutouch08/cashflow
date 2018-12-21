@@ -92,6 +92,7 @@ public function search($id_bank_ac)
 		$from_date 	= $this->input->cookie("from_date") ? $this->input->cookie("from_date") : '' ;
 		$to_date 	= $this->input->cookie("to_date") ? $this->input->cookie("to_date") : '' ;
 	}
+
 	$row							= $this->flow_model->count_search_row($id_bank_ac, $detail, $reference, $from_date, $to_date);
 	$per_page					= $this->input->cookie('rows');
 	$perpage					= $per_page? $per_page : getConfig("PER_PAGE");
@@ -237,7 +238,7 @@ public function reorder($id_bank_ac, $date)
 			$pos++;
 		}
 	}
-	
+
 	if($ro){
 		foreach($ro as $ra)
 		{

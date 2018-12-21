@@ -1,9 +1,9 @@
 <?php /***********************************   ระบบตรวจสอบสิทธิ์  ******************************************/ ?>
 <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/jquery.gritter.css" />
 <script src="<?php echo base_url(); ?>assets/js/jquery.gritter.js"></script>
-<?php 
-	$p = valid_access($id_menu); 
-	$a = valid_ac($id_bank_ac); 	
+<?php
+	$p = valid_access($id_menu);
+	$a = valid_ac($id_bank_ac);
 ?>
 <?php if($p['view'] != 1) : ?>
 <?php access_deny();  ?>
@@ -72,8 +72,8 @@
 	<input type="text" id="edit_remark" placeholder="ระบุหมายเหตุการบันทึก(ถ้ามี)" class="form-control" />
 </div>
 
-</div><!--/ Row -->          
-          
+</div><!--/ Row -->
+
           </div>
 		  <div class='modal-footer'>
 			<button type="button" id="btn_update" onclick="update()" class="btn btn-success btn-sm"><i class="fa fa-save"></i>&nbsp; บันทึก</button>
@@ -82,7 +82,7 @@
 	</div>
 </div>
 <!------------------------------------------------- END Modal  ----------------------------------------------------------->
-<?php 
+<?php
 	if(!isset($detail)){ $detail = ""; }
 	if(!isset($reference)){ $reference = ""; }
 	if(!isset($from_date)){ $from_date = ""; }
@@ -131,18 +131,20 @@
     <th style="width:10%; text-align:center">คงเหลือ</th>
     <th style="width:10%; text-align:center">ใช้ได้</th>
     <th style="width:5%; text-align:center">โดย</th>
-    <th style="text-align:center">อ้างอิง</th> 
-    
+    <th style="text-align:center">อ้างอิง</th>
+
 </thead>
 <tbody id="content">
 <?php 	$color_sc = ""; ?>
 <?php if( isset($data) && $data != false) : ?>
+<?php  $total_move_in = 0; ?>
+<?php  $total_move_out = 0; ?>
 <?php	foreach($data as $rs) : ?>
 <?php		$due_date = thaiDate($rs->due_date, "", false); ?>
 <?php 		$id		= $rs->id_cash_flow; ?>
 	<tr id="<?php echo $id; ?>" style="background-color: <?php echo $rs->color.";"; ?><?php if($rs->od_balance < 0 ){ echo " color:red"; } ?>">
     	<td align="center">
-        <select id="color<?php echo $id; ?>"><?php echo color_select(); ?></select>
+        
 		<?php if(can_do($a['add']) || can_do($a['edit']) )  : ?>
             	<select id="color<?php echo $id; ?>"><?php echo color_select(); ?></select>
             <?php endif; ?>
@@ -153,7 +155,7 @@
         <?php endif; ?>
         <?php if( can_do($a['edit']) ) : ?>
         	&nbsp;&nbsp;
-        	<a href="javascript:void(0)" style="margin: 0px 2px 0px 2px;" id="btn_edit_<?php echo $id; ?>" onclick="edit(<?php echo $id; ?>)" ><i class="fa fa-pencil fa-2x light-blue"></i></a> 
+        	<a href="javascript:void(0)" style="margin: 0px 2px 0px 2px;" id="btn_edit_<?php echo $id; ?>" onclick="edit(<?php echo $id; ?>)" ><i class="fa fa-pencil fa-2x light-blue"></i></a>
         <?php endif; ?>
         <?php if( $rs->remark != "") : ?>
         		&nbsp;&nbsp;
@@ -175,15 +177,23 @@
     	<td><?php echo $due_date; ?><input type="hidden" id="due_date<?php echo $id; ?>" value="<?php echo $due_date; ?>"  /></td>
         <td><?php echo $rs->detail; ?><input type="hidden" id="detail<?php echo $id; ?>" value="<?php echo $rs->detail; ?>"  /></td>
         <td><?php echo $rs->reference; ?><input type="hidden" id="reference<?php echo $id; ?>" value="<?php echo $rs->reference; ?>"  /></td>
-        <td align="right"><?php echo number($rs->cash_in,2); ?><input type="hidden" id="cash_in<?php echo $id; ?>" value="<?php echo $rs->cash_in; ?>"  /></td>    	
+        <td align="right"><?php echo number($rs->cash_in,2); ?><input type="hidden" id="cash_in<?php echo $id; ?>" value="<?php echo $rs->cash_in; ?>"  /></td>
         <td align="right"><?php echo number($rs->cash_out,2); ?><input type="hidden" id="cash_out<?php echo $id; ?>" value="<?php echo $rs->cash_out; ?>"  /></td>
         <td align="right"><?php echo number($rs->balance,2); ?></td>
         <td align="right"><?php echo number($rs->od_balance,2); ?></td>
         <td align="center"><?php echo $rs->move_type; ?><input type="hidden" id="move_type<?php echo $id; ?>" value="<?php echo $rs->move_type; ?>"  /></td>
-        <td><?php echo $rs->move_reference; ?><input type="hidden" id="move_reference<?php echo $id; ?>" value="<?php echo $rs->move_reference; ?>"  /></td>        
+        <td><?php echo $rs->move_reference; ?><input type="hidden" id="move_reference<?php echo $id; ?>" value="<?php echo $rs->move_reference; ?>"  /></td>
     </tr>
-<?php $color_sc .= "$('#color".$id."').ace_colorpicker().on('change', function() { var color = $('#color".$id."').val(); change_color(".$id.", color); }); "; ?>    
+<?php $total_move_in += $rs->cash_in; ?>
+<?php $total_move_out += $rs->cash_out; ?>
+<?php $color_sc .= "$('#color".$id."').ace_colorpicker().on('change', function() { var color = $('#color".$id."').val(); change_color(".$id.", color); }); "; ?>
 <?php	endforeach; ?>
+			<tr>
+				<td colspan="5" align="right">รวม</td>
+				<td align="right"><?php echo number($total_move_in,2); ?></td>
+				<td align="right"><?php echo number($total_move_out,2); ?></td>
+				<td colspan="4" align="center"> ผลต่าง : <?php echo number($total_move_in - $total_move_out, 2); ?></td>
+			</tr>
 <?php else : ?>
 	<tr>
 	<td colspan="12">
@@ -233,13 +243,13 @@ function edit(id)
 	var cash_out 			= $("#cash_out"+id).val();
 	var move_type 		= $("#move_type"+id).val();
 	var move_reference = $("#move_reference"+id).val();
-	
+
 	$("#edit_cash_in").css("visibility","");
 	$("#edit_cash_out").css("visibility","");
-	
+
 	$("#edit_cash_in").val(cash_in);
 	$("#edit_cash_out").val(cash_out);
-	
+
 	if( cash_in > 0 && cash_out == 0)
 	{
 		$("#edit_cash_out").css("visibility", "hidden");
@@ -253,7 +263,7 @@ function edit(id)
 	$("#edit_reference").val(reference);
 	$("#edit_move_type").val(move_type);
 	$("#edit_move_reference").val(move_reference);
-	$("#btn_toggle").click();	
+	$("#btn_toggle").click();
 }
 
 function update()
@@ -267,7 +277,7 @@ function update()
 	var detail				= $("#edit_detail").val();
 	var reference 		= $("#edit_reference").val();
 	var cash_in			= $("#edit_cash_in").val();
-	var cash_out		= $("#edit_cash_out").val();	
+	var cash_out		= $("#edit_cash_out").val();
 	var move_type		= $("#edit_move_type").val();
 	var move_ref 		= $("#edit_move_reference").val();
 	var remark 			= $("#edit_remark").val();
@@ -286,7 +296,7 @@ function update()
 					location.href = "<?php echo base_url().uri_string(); ?>";
 			}
 		})
-	}	
+	}
 }
 
 function change_color(id, color)
@@ -295,7 +305,7 @@ function change_color(id, color)
 	load_in();
 	$.ajax({
 		url:'<?php echo $this->home; ?>/change_color/'+ id,
-		type:"POST", cache:false, 
+		type:"POST", cache:false,
 		data:{ "color" : color },
 		success: function(rs){
 			if(rs == 'success'){
@@ -308,7 +318,7 @@ function change_color(id, color)
 			}else{
 				swal("ไม่สามารถเปลี่ยนสีได้");
 			}
-		}		
+		}
 	});
 }
 
@@ -325,14 +335,14 @@ function date_error(title, text, el)
 			  function(isConfirm){
 			  if (isConfirm) {
 				el.focus();
-			  } 
+			  }
 			});
 			el.focus();
 }
 
 function clear_field()
 {
-	$("#edit_due_date").val("");	
+	$("#edit_due_date").val("");
 	$("#edit_detail").val("");
 	$("#edit_reference").val("");
 	$("#edit_cash_in").val("");
@@ -435,7 +445,7 @@ function delete_row(id, date, s_in, out)
 				}
 			}
 		});
-	  } 
+	  }
 	});
 }
 

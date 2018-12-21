@@ -13,7 +13,9 @@ public function count_row($id)
 	if($rs > 0)
 	{
 		return $rs;
-	}else{
+	}
+	else
+	{
 		return false;
 	}
 }
@@ -23,40 +25,118 @@ public function get_data($id = "",$id_bank_ac, $perpage= 20, $limit = 1)
 	if($id != "")
 	{
 		$rs = $this->db->where("id_cash_flow", $id)->get("tbl_cash_flow");
-	}else{
+	}
+	else
+	{
 		$rs = $this->db->where("id_bank_ac", $id_bank_ac)->order_by("due_date", "DESC")->order_by("position", "DESC")->limit($perpage, $limit)->get("tbl_cash_flow");
 	}
 	if($rs->num_rows() > 0)
 	{
 		return $rs->result();
-	}else{
+	}
+	else
+	{
 		return false;
 	}
 }
 
 public function get_search($id_bank_ac, $detail, $reference, $from_date, $to_date, $perpage = 20, $limit = 1)
 {
-	$this->db->where("id_bank_ac", $id_bank_ac);
-	if( $detail != ''){ 	$this->db->like('detail', $detail); }
-	if( $reference != ''){ $this->db->like('reference', $reference); }
-	if( $from_date != '' && $to_date != '' ){ $this->db->where("due_date BETWEEN '$from_date' AND '$to_date'", NULL, false); }
-	$rs = $this->db->where("id_bank_ac", $id_bank_ac)->order_by("due_date", "ASC")->order_by("position", "ASC")->get("tbl_cash_flow");
+	$where = "WHERE id_bank_ac = ".$id_bank_ac." ";
+	if( $detail != '')
+	{
+		$arr = explode('+', $detail);
+		if(count($arr) > 1)
+		{
+			$i = 1;
+			$details_query = "";
+			foreach($arr as $ds)
+			{
+				$details_query .= $i == 1 ? "detail LIKE '%".trim($ds)."%' " : "OR detail LIKE '%".trim($ds)."%' ";
+				$i++;
+			}
+
+			$where .= "AND (".$details_query.") ";
+		}
+		else
+		{
+			$where .= "AND detail LIKE '%".trim($detail)."%' ";
+		}
+
+	}
+
+	if( $reference != '')
+	{
+		$where .= "AND reference LIKE '%".trim($reference)."%' ";
+	}
+
+	if( $from_date != '' && $to_date != '' )
+	{
+		$where .= "AND due_date >= '".$from_date."' ";
+		$where .= "AND due_date <= '".$to_date."' ";
+	}
+
+	$qr  = "SELECT * FROM tbl_cash_flow ";
+	$qr .= $where." ORDER BY due_date ASC, position ASC ";
+	$qr .= "LIMIT ".$perpage;
+	if($limit > 0)
+	{
+		$qr .= " OFFSET ".$limit;
+	}
+
+	$rs = $this->db->query($qr);
+
 	if($rs->num_rows() > 0 )
 	{
 		return $rs->result();
-	}else{
+	}
+	else
+	{
 		return false;
 	}
 }
 
 public function count_search_row($id_bank_ac, $detail, $reference, $from_date, $to_date)
 {
-	$this->db->where("id_bank_ac", $id_bank_ac);
-	if( $detail != ''){ 	$this->db->like('detail', $detail); }
-	if( $reference != '' && $detail != '' ){ $this->db->or_like('reference', $reference); }else if( $reference != '' ){ $this->db->like('reference', $reference); }
-	if( $from_date != '' && $to_date != '' ){ $this->db->where("due_date BETWEEN '$from_date' AND '$to_date'", NULL, false); }
-	$rs = $this->db->where("id_bank_ac", $id_bank_ac)->get("tbl_cash_flow");
-	return $rs->num_rows();
+	$where = "WHERE id_bank_ac = ".$id_bank_ac." ";
+	if( $detail != '')
+	{
+		$arr = explode('+', $detail);
+		if(count($arr) > 1)
+		{
+			$i = 1;
+			$details_query = "";
+			foreach($arr as $ds)
+			{
+				$details_query .= $i == 1 ? "detail LIKE '%".trim($ds)."%' " : "OR detail LIKE '%".trim($ds)."%' ";
+				$i++;
+			}
+
+			$where .= "AND (".$details_query.") ";
+		}
+		else
+		{
+			$where .= "AND detail LIKE '%".trim($detail)."%' ";
+		}
+
+	}
+
+	if( $reference != '')
+	{
+		$where .= "AND reference LIKE '%".trim($reference)."%' ";
+	}
+
+	if( $from_date != '' && $to_date != '' )
+	{
+		$where .= "AND due_date >= '".$from_date."' ";
+		$where .= "AND due_date <= '".$to_date."' ";
+	}
+
+	$qr  = "SELECT count(id_cash_flow) AS rows FROM tbl_cash_flow ";
+	$qr .= $where." ORDER BY due_date ASC, position ASC";
+
+	$rs = $this->db->query($qr);
+	return $rs->row()->rows;
 }
 
 public function add_row($data)

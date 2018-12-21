@@ -228,6 +228,8 @@
 <tbody id="content">
 <?php 	$color_sc = ""; ?>
 <?php if( isset($data) && $data != false) : ?>
+<?php  $total_move_in = 0; ?>
+<?php  $total_move_out = 0; ?>
 <?php	foreach($data as $rs) : ?>
 <?php		$due_date = thaiDate($rs->due_date, "", false); ?>
 <?php 		$id		= $rs->id_cash_flow; ?>
@@ -274,8 +276,16 @@
         <td align="center"><?php echo $rs->move_type; ?><input type="hidden" id="move_type<?php echo $id; ?>" value="<?php echo $rs->move_type; ?>"  /></td>
         <td><?php echo $rs->move_reference; ?><input type="hidden" id="move_reference<?php echo $id; ?>" value="<?php echo $rs->move_reference; ?>"  /></td>
     </tr>
+		<?php $total_move_in += $rs->cash_in; ?>
+		<?php $total_move_out += $rs->cash_out; ?>
     <?php $color_sc .= "$('#color".$id."').ace_colorpicker().on('change', function() { var color = $('#color".$id."').val(); change_color(".$id.", color); }); "; ?>
 <?php	endforeach; ?>
+<tr>
+	<td colspan="5" align="right">รวม</td>
+	<td align="right"><?php echo number($total_move_in,2); ?></td>
+	<td align="right"><?php echo number($total_move_out,2); ?></td>
+	<td colspan="4" > ผลต่าง : <?php echo number_format($total_move_in - $total_move_out, 2); ?></td>
+</tr>
 <?php else : ?>
 	<tr>
 	<td colspan="12">
