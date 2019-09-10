@@ -658,9 +658,14 @@ $("#btn_save").bind("enterKey",function(){
 $("#due_date").keyup(function(e){
     if(e.keyCode == 13)
     {
-        $(this).trigger("enterKey");
+			var date = $(this).val();
+			if(date.length == 10){
+				$(this).trigger("enterKey");
+			}
+
     }
 });
+
 $("#detail").keyup(function(e){
     if(e.keyCode == 13)
     {
